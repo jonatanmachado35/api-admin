@@ -13,11 +13,13 @@ const find_user_use_case_1 = require("./application/find-user.use-case");
 const in_memory_user_repository_1 = require("./infrastructure/in-memory-user.repository");
 const user_repository_1 = require("./domain/user.repository");
 const users_controller_1 = require("./presentation/users.controller");
+const roles_module_1 = require("../roles/roles.module");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
+        imports: [roles_module_1.RolesModule],
         controllers: [users_controller_1.UsersController],
         providers: [
             create_user_use_case_1.CreateUserUseCase,

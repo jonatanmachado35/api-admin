@@ -14,4 +14,8 @@ export class InMemoryRoleRepository implements RoleRepository {
   async findByName(name: string): Promise<Role | null> {
     return this.roles.find((r) => r.name === name) || null;
   }
+
+  async findById(id: string): Promise<Role | null> {
+    return this.roles.find((r) => r.id === id) || null;
+  }
 }

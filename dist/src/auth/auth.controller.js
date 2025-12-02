@@ -18,18 +18,12 @@ const local_auth_guard_1 = require("./guards/local-auth.guard");
 const login_use_case_1 = require("./application/login.use-case");
 const refresh_token_use_case_1 = require("./application/refresh-token.use-case");
 const refresh_token_guard_1 = require("./guards/refresh-token.guard");
-const create_user_use_case_1 = require("../users/application/create-user.use-case");
 let AuthController = class AuthController {
     loginUseCase;
     refreshTokenUseCase;
-    createUserUseCase;
-    constructor(loginUseCase, refreshTokenUseCase, createUserUseCase) {
+    constructor(loginUseCase, refreshTokenUseCase) {
         this.loginUseCase = loginUseCase;
         this.refreshTokenUseCase = refreshTokenUseCase;
-        this.createUserUseCase = createUserUseCase;
-    }
-    async register(user) {
-        return this.createUserUseCase.execute(user);
     }
     async login(req) {
         return this.loginUseCase.execute(req.user);
@@ -41,13 +35,6 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
-__decorate([
-    (0, common_1.Post)('register'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "register", null);
 __decorate([
     (0, common_1.UseGuards)(local_auth_guard_1.LocalAuthGuard),
     (0, common_1.Post)('login'),
@@ -67,7 +54,6 @@ __decorate([
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [login_use_case_1.LoginUseCase,
-        refresh_token_use_case_1.RefreshTokenUseCase,
-        create_user_use_case_1.CreateUserUseCase])
+        refresh_token_use_case_1.RefreshTokenUseCase])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

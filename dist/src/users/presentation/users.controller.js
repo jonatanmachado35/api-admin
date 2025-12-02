@@ -15,11 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_auth_guard_1 = require("../../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../../auth/guards/roles.guard");
+const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
 const find_user_use_case_1 = require("../application/find-user.use-case");
+const create_user_use_case_1 = require("../application/create-user.use-case");
 let UsersController = class UsersController {
     findUserUseCase;
-    constructor(findUserUseCase) {
+    createUserUseCase;
+    constructor(findUserUseCase, createUserUseCase) {
         this.findUserUseCase = findUserUseCase;
+        this.createUserUseCase = createUserUseCase;
+    }
+    async create(body) {
+        const { roleId, ...userData } = body;
+        return this.createUserUseCase.execute(userData, roleId);
     }
     async getProfile(req) {
         const user = await this.findUserUseCase.findById(req.user.userId);
@@ -32,6 +41,15 @@ let UsersController = class UsersController {
 };
 exports.UsersController = UsersController;
 __decorate([
+    (0, common_1.Post)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "create", null);
+__decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('profile'),
     __param(0, (0, common_1.Request)()),
@@ -41,6 +59,7 @@ __decorate([
 ], UsersController.prototype, "getProfile", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
-    __metadata("design:paramtypes", [find_user_use_case_1.FindUserUseCase])
+    __metadata("design:paramtypes", [find_user_use_case_1.FindUserUseCase,
+        create_user_use_case_1.CreateUserUseCase])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

@@ -46,22 +46,30 @@ exports.CreateUserUseCase = void 0;
 const common_1 = require("@nestjs/common");
 const user_entity_1 = require("../domain/user.entity");
 const user_repository_1 = require("../domain/user.repository");
+const role_repository_1 = require("../../roles/domain/role.repository");
 const bcrypt = __importStar(require("bcrypt"));
 const uuid_1 = require("uuid");
 let CreateUserUseCase = class CreateUserUseCase {
     userRepository;
-    constructor(userRepository) {
+    roleRepository;
+    constructor(userRepository, roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
-    async execute(user) {
+    async execute(user, roleId) {
         if (!user.password) {
             throw new Error('Password is required');
+        }
+        const role = await this.roleRepository.findById(roleId);
+        if (!role) {
+            throw new common_1.NotFoundException('Role not found');
         }
         const hashedPassword = await bcrypt.hash(user.password, 10);
         const newUser = new user_entity_1.User({
             ...user,
             id: (0, uuid_1.v4)(),
             password: hashedPassword,
+            roles: [role],
         });
         return this.userRepository.create(newUser);
     }
@@ -69,6 +77,7 @@ let CreateUserUseCase = class CreateUserUseCase {
 exports.CreateUserUseCase = CreateUserUseCase;
 exports.CreateUserUseCase = CreateUserUseCase = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [user_repository_1.UserRepository])
+    __metadata("design:paramtypes", [user_repository_1.UserRepository,
+        role_repository_1.RoleRepository])
 ], CreateUserUseCase);
 //# sourceMappingURL=create-user.use-case.js.map

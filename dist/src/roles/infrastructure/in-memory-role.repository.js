@@ -17,6 +17,9 @@ let InMemoryRoleRepository = class InMemoryRoleRepository {
     async findByName(name) {
         return this.roles.find((r) => r.name === name) || null;
     }
+    async findById(id) {
+        return this.roles.find((r) => r.id === id) || null;
+    }
 };
 exports.InMemoryRoleRepository = InMemoryRoleRepository;
 exports.InMemoryRoleRepository = InMemoryRoleRepository = __decorate([

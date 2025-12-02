@@ -10,23 +10,24 @@ exports.UsersModule = void 0;
 const common_1 = require("@nestjs/common");
 const create_user_use_case_1 = require("./application/create-user.use-case");
 const find_user_use_case_1 = require("./application/find-user.use-case");
-const in_memory_user_repository_1 = require("./infrastructure/in-memory-user.repository");
 const user_repository_1 = require("./domain/user.repository");
 const users_controller_1 = require("./presentation/users.controller");
 const roles_module_1 = require("../roles/roles.module");
+const prisma_user_repository_1 = require("./infrastructure/prisma-user.repository");
+const prisma_module_1 = require("../prisma/prisma.module");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
-        imports: [roles_module_1.RolesModule],
+        imports: [roles_module_1.RolesModule, prisma_module_1.PrismaModule],
         controllers: [users_controller_1.UsersController],
         providers: [
             create_user_use_case_1.CreateUserUseCase,
             find_user_use_case_1.FindUserUseCase,
             {
                 provide: user_repository_1.UserRepository,
-                useClass: in_memory_user_repository_1.InMemoryUserRepository,
+                useClass: prisma_user_repository_1.PrismaUserRepository,
             },
         ],
         exports: [create_user_use_case_1.CreateUserUseCase, find_user_use_case_1.FindUserUseCase, user_repository_1.UserRepository],

@@ -36,7 +36,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcrypt"));
 const uuid_1 = require("uuid");
-const prisma = new client_1.PrismaClient();
+require("dotenv/config");
+const prisma = new client_1.PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL,
+});
 async function main() {
     const adminRole = await prisma.role.upsert({
         where: { name: 'admin' },
@@ -54,6 +57,9 @@ async function main() {
             id: (0, uuid_1.v4)(),
             name: 'Admin User',
             email: 'admin@example.com',
+            telephone: '+55 11 99999-9999',
+            document: '12345678901',
+            pix: 'admin@example.com',
             password: adminPassword,
             roles: {
                 connect: { id: adminRole.id },

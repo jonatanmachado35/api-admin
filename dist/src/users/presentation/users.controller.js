@@ -19,6 +19,7 @@ const roles_guard_1 = require("../../auth/guards/roles.guard");
 const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
 const find_user_use_case_1 = require("../application/find-user.use-case");
 const create_user_use_case_1 = require("../application/create-user.use-case");
+const create_user_dto_1 = require("./dto/create-user.dto");
 let UsersController = class UsersController {
     findUserUseCase;
     createUserUseCase;
@@ -28,7 +29,9 @@ let UsersController = class UsersController {
     }
     async create(body) {
         const { roleId, ...userData } = body;
-        return this.createUserUseCase.execute(userData, roleId);
+        const createdUser = await this.createUserUseCase.execute(userData, roleId);
+        const { password, refreshToken, ...result } = createdUser;
+        return result;
     }
     async getProfile(req) {
         const user = await this.findUserUseCase.findById(req.user.userId);
@@ -46,7 +49,7 @@ __decorate([
     (0, roles_decorator_1.Roles)('admin'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
 __decorate([

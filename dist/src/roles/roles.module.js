@@ -11,18 +11,20 @@ const common_1 = require("@nestjs/common");
 const roles_controller_1 = require("./presentation/roles.controller");
 const create_role_use_case_1 = require("./application/create-role.use-case");
 const role_repository_1 = require("./domain/role.repository");
-const in_memory_role_repository_1 = require("./infrastructure/in-memory-role.repository");
+const prisma_role_repository_1 = require("./infrastructure/prisma-role.repository");
+const prisma_module_1 = require("../prisma/prisma.module");
 let RolesModule = class RolesModule {
 };
 exports.RolesModule = RolesModule;
 exports.RolesModule = RolesModule = __decorate([
     (0, common_1.Module)({
+        imports: [prisma_module_1.PrismaModule],
         controllers: [roles_controller_1.RolesController],
         providers: [
             create_role_use_case_1.CreateRoleUseCase,
             {
                 provide: role_repository_1.RoleRepository,
-                useClass: in_memory_role_repository_1.InMemoryRoleRepository,
+                useClass: prisma_role_repository_1.PrismaRoleRepository,
             },
         ],
         exports: [role_repository_1.RoleRepository],

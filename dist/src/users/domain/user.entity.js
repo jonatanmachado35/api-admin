@@ -11,6 +11,7 @@ class User {
     password;
     refreshToken;
     roles;
+    created_at;
     constructor(partial) {
         Object.assign(this, partial);
     }

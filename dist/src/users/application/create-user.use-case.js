@@ -57,8 +57,12 @@ let CreateUserUseCase = class CreateUserUseCase {
         this.roleRepository = roleRepository;
     }
     async execute(user, roleId) {
-        if (!user.password) {
-            throw new Error('Password is required');
+        if (!user.password || !user.email || !user.telephone || !user.document || !user.pix || !user.name) {
+            throw new Error('Missing required user fields');
+        }
+        const existingUser = await this.userRepository.findByEmail(user.email ?? '');
+        if (existingUser) {
+            throw new common_1.ConflictException('Email already in use');
         }
         const role = await this.roleRepository.findById(roleId);
         if (!role) {

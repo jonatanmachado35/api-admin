@@ -13,8 +13,8 @@ export class CreateUserUseCase {
   ) { }
 
   async execute(user: Partial<User>, roleId: string): Promise<User> {
-    if (!user.password) {
-      throw new Error('Password is required');
+    if (!user.password || !user.email || !user.telephone || !user.document || !user.pix || !user.name) {
+      throw new Error('Missing required user fields');
     }
 
     const existingUser = await this.userRepository.findByEmail(user.email ?? '');

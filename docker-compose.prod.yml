@@ -24,7 +24,7 @@ services:
     build: .
     restart: always
     environment:
-      DATABASE_URL: "postgresql://postgres:94f5cbfa6242d9a862ba910ad70b28db@myapp:5432/myapp?schema=public"
+      DATABASE_URL: "postgresql://postgres:94f5cbfa6242d9a862ba910ad70b28db@db:5432/myapp?schema=public"
       NODE_ENV: production
       JWT_SECRET: "68cedf158fe8532928a6a601e482b40b"
     ports:

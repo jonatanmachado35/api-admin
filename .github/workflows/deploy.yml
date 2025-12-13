@@ -22,7 +22,7 @@ jobs:
           source: "."
           target: "/home/ubuntu/app"
 
-      - name: Create .env.production on VPS
+      - name: Create docker-compose.prod.yml with secrets
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -30,14 +30,53 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
-            cat > .env.production << 'EOF'
-            DATABASE_URL=postgresql://postgres:${{ secrets.DB_PASSWORD }}@db:5432/${{ secrets.DB_NAME }}?schema=public
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            NODE_ENV=production
+            cat > docker-compose.prod.yml << 'EOF'
+            services:
+              db:
+                image: postgres:16-alpine
+                restart: always
+                environment:
+                  POSTGRES_USER: postgres
+                  POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+                  POSTGRES_DB: ${{ secrets.DB_NAME }}
+                  PGDATA: /var/lib/postgresql/data/pgdata
+                ports:
+                  - "5432:5432"
+                volumes:
+                  - postgres_data:/var/lib/postgresql/data
+                healthcheck:
+                  test: ["CMD-SHELL", "pg_isready -U postgres -d ${{ secrets.DB_NAME }}"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
+                networks:
+                  - app-network
+
+              app:
+                build: .
+                restart: always
+                environment:
+                  DATABASE_URL: "postgresql://postgres:${{ secrets.DB_PASSWORD }}@db:5432/${{ secrets.DB_NAME }}?schema=public"
+                  DIRECT_URL: "postgresql://postgres:${{ secrets.DB_PASSWORD }}@db:5432/${{ secrets.DB_NAME }}?schema=public"
+                  NODE_ENV: production
+                  JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+                ports:
+                  - "3000:3000"
+                depends_on:
+                  db:
+                    condition: service_healthy
+                command: ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+                networks:
+                  - app-network
+
+            volumes:
+              postgres_data:
+
+            networks:
+              app-network:
+                driver: bridge
             EOF
-            echo "✅ Arquivo .env.production criado"
+            echo "✅ docker-compose.prod.yml criado com secrets"
 
       - name: Execute deploy script on VPS
         uses: appleboy/ssh-action@v0.1.7
@@ -47,6 +86,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/ubuntu/app
+            
             echo "⏹️  Parando containers antigos..."
             docker compose -f docker-compose.prod.yml down || true
             
@@ -57,7 +97,7 @@ jobs:
             docker compose -f docker-compose.prod.yml up -d --build
             
             echo "⏳ Aguardando containers iniciarem..."
-            sleep 10
+            sleep 15
             
             echo "📊 Status dos containers:"
             docker compose -f docker-compose.prod.yml ps

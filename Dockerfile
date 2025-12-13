@@ -20,9 +20,6 @@ RUN npx prisma generate
 COPY src ./src
 RUN npm run build
 
-# Remove dependências de desenvolvimento para o pacote final
-RUN npm prune --omit=dev
-
 FROM node:20-bullseye-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
@@ -33,11 +30,17 @@ RUN apt-get update -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Copia apenas o necessário para rodar em produção
+# Copia package.json
 COPY package*.json ./
+
+# Copia node_modules do builder (com todas as dependências)
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copia o código compilado (IMPORTANTE!)
 COPY --from=builder /app/dist ./dist
-COPY prisma ./prisma
+
+# Copia prisma schema
+COPY --from=builder /app/prisma ./prisma
 
 # Gera o Prisma Client na imagem final
 RUN npx prisma generate

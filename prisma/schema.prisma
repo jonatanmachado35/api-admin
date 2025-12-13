@@ -32,3 +32,18 @@ model Role {
   created_at DateTime @default(now())
   users      User[]
 }
+
+model Expense {
+  id         String         @id @default(uuid())
+  name       String
+  value      Decimal
+  status     ExpenseStatus  @default(PENDING)
+  approved   Boolean        @default(false)
+  created_at DateTime       @default(now())
+}
+
+enum ExpenseStatus {
+  PENDING
+  AWAITING_PAYMENT
+  PAID
+}
